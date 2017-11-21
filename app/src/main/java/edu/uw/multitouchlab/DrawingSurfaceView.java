@@ -10,6 +10,11 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * An example SurfaceView for generating graphics on
  * @author Joel Ross
@@ -30,8 +35,9 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     private Paint whitePaint; //drawing variables (pre-defined for speed)
     private Paint goldPaint; //drawing variables (pre-defined for speed)
 
-    public Ball ball; //public for easy access
+//    public Ball ball; //public for easy access
 
+    private HashMap<Integer, Ball> touches = new HashMap();
 
     /**
      * We need to override all the constructors, since we don't know which will be called
@@ -61,16 +67,29 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         goldPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         goldPaint.setColor(Color.rgb(145, 123, 76));
 
-        init();
+//        init();
+    }
+
+    synchronized void addTouch(Integer pointerId, float xCoord, float yCoord){
+
+        // create new ball
+        Ball ball = new Ball(xCoord, yCoord, 100f);
+
+        // add new Ball to touches map
+        touches.put(pointerId, ball);
+    }
+
+    synchronized void removeTouch(Integer pointerID){
+        touches.remove(pointerID);
     }
 
     /**
      * Initialize graphical drawing state
      */
-    public void init(){
-        //make ball
-        ball = new Ball(viewWidth/2, viewHeight/2, 100);
-    }
+//    public void init(){
+//        //make ball
+//        Ball ball = new Ball(viewWidth/2, viewHeight/2, 100);
+//    }
 
 
     /**
@@ -90,7 +109,11 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
 
         canvas.drawColor(Color.rgb(51,10,111)); //purple out the background
 
-        canvas.drawCircle(ball.cx, ball.cy, ball.radius, whitePaint); //we can draw directly onto the canvas
+        Collection<Ball> balls = touches.values();
+
+        for(Ball ball : balls){
+            canvas.drawCircle(ball.cx, ball.cy, ball.radius, goldPaint); //we can draw directly onto the canvas
+        }
     }
 
 
@@ -111,7 +134,7 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
             viewHeight = height;
             bmp = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.ARGB_8888); //new buffer to draw on
 
-            init();
+//            init();
         }
     }
 
